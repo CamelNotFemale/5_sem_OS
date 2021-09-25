@@ -3,6 +3,8 @@
 #include <string.h>
 
 using namespace std;
+// меню
+int menu();
 // Вывод списка дисков
 void show_disk_list();
 // Вывод информации о диске
@@ -31,10 +33,83 @@ void set_file_time();
 int main()
 {
     system("chcp 1251");
+    int select = -1;
 
-    get_info_by_handle();
+    do {
+        select = menu();
+
+		switch (select) {
+        case 1:
+            show_disk_list();
+            break;
+        case 2:
+            disk_information();
+            break;
+        case 3:
+            create_directory();
+            break;
+        case 4:
+            remove_directory();
+            break;
+        case 5:
+            create_file();
+            break;
+        case 6:
+            copy_file();
+            break;
+        case 7:
+            move_file();
+            break;
+        case 8:
+            get_file_attributes();
+            break;
+        case 9:
+            set_file_attributes();
+            break;
+        case 10:
+            get_info_by_handle();
+            break;
+        case 11:
+            get_file_time();
+            break;
+        case 12:
+            set_file_time();
+            break;
+        case 0:
+            cout << "Завершение программы..." << endl;
+            break;
+        default:
+            cout << "Выбранный пункт меню отсутствует. Повторите действие." << endl;
+		}
+		system("pause");
+    } while (select != 0);
 
     return 0;
+}
+int menu() {
+    int select;
+
+    system("cls");
+
+    cout << "ГЛАВНОЕ МЕНЮ" << endl;
+    cout << "1. Список дисков" << endl;
+    cout << "2. Информация о диске" << endl;
+    cout << "3. Создание нового каталога" << endl;
+    cout << "4. Удаление каталога" << endl;
+    cout << "5. Создание файла" << endl;
+    cout << "6. Копирование файла" << endl;
+    cout << "7. Перемещение файла" << endl;
+    cout << "8. Информация об атрибутах файла" << endl;
+    cout << "9. Установка атрибутов файла" << endl;
+    cout << "10. Информация об атрибутах файла по дескриптору" << endl;
+    cout << "11. Системное время" << endl;
+    cout << "12. Изменение системного времени" << endl;
+    cout << "0. Завершение программы" << endl;
+
+    cout << "> ";
+    cin >> select;
+
+    return select;
 }
 
 void show_disk_list() {
