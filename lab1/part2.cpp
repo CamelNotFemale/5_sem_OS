@@ -7,15 +7,14 @@ int callback = 0;
 // хэндлы на файлы, учавствующие в операции копирования
 HANDLE firstHandle;
 HANDLE secondHandle;
-// должны оставаться допустимыми для длительной операции чтения.
-OVERLAPPED* over_1;
-OVERLAPPED* over_2;
 
 // Функция завершения, которая будет вызываться всякий раз при завершении операции ввода-вывода
 VOID CALLBACK FileIOCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped) {
     // количество вызовов
     callback++;
 }
+void ReadFileOverlapped(DWORD fileSize, DWORD blockSize, int operationsCount, OVERLAPPED* overlappeds, CHAR** buffer, HANDLE fileHandle);
+void WriteFileOverlapped(DWORD fileSize, DWORD blockSize, int operationsCount, OVERLAPPED* overlappeds, CHAR** buffer, HANDLE fileHandle);
 // Функция асинхронного копирования
 void copyFile(HANDLE firstHandle, HANDLE secondHandle, DWORD blockSize, int operationsCount);
 
@@ -63,9 +62,6 @@ int main()
             DWORD endTime = GetTickCount();
             //Конец замера времени и копирования
             cout << endl << "Время копирования: " << endTime - startTime << endl;
-
-            delete[] over_1;
-            delete[] over_2;
         }
         else
         {
@@ -80,76 +76,73 @@ int main()
         cout << "Ошибка: Не удалось закрыть Handle второго файла!" << endl;
 }
 
-void copyFile(HANDLE firstHandle, HANDLE secondHandle, DWORD blockSize, int operationsCount) {
-    int fileSize = GetFileSize(firstHandle, NULL);
-    int firstSize = fileSize;
-    int operation_counter = 0; // Счетчик проделанных операций
-    CHAR* buffer = new CHAR[fileSize + (fileSize % blockSize > 0 ? 1 : 0) * blockSize];
-    CHAR* buffer2 = new CHAR[fileSize + (fileSize % blockSize > 0 ? 1 : 0) * blockSize];
-    //
-    over_1 = new OVERLAPPED[operationsCount];
-    over_2 = new OVERLAPPED[operationsCount];
-    for (int i = 0; i < operationsCount; i++)
+void ReadFileOverlapped(long long fileSize, DWORD blockSize, int operationsCount, OVERLAPPED* overlappeds, CHAR** buffer, HANDLE fileHandle)
+{
+    int operations_counter = 0;
+    for (int i=0; i<operationsCount; i++)
     {
-        over_1[i].Offset = 0;
-        over_1[i].OffsetHigh = 0;
-        over_1[i].hEvent = NULL;
-
-        over_2[i].Offset = 0;
-        over_2[i].OffsetHigh = 0;
-        over_2[i].hEvent = NULL;
+        if (fileSize>0)
+        {
+            operations_counter++;
+            ReadFileEx(fileHandle, buffer[i], blockSize, &overlappeds[i], FileIOCompletionRoutine);
+            fileSize -= blockSize;
+        }
     }
-    buffer2 = buffer;
-    bool inFlag = false;
-    bool outFlag = false;
+    while (callback < operations_counter)
+        SleepEx(-1, true);
+    for (int i=0; i<operationsCount; i++)
+    {
+        overlappeds[i].Offset += blockSize*operationsCount;
+    }
+    callback = 0;
+}
+
+void WriteFileOverlapped(long long fileSize, DWORD blockSize, int operationsCount, OVERLAPPED* overlappeds, CHAR** buffer, HANDLE fileHandle)
+{
+    int operations_counter = 0;
+    for (int i=0; i<operationsCount; i++)
+    {
+        if (fileSize>0)
+        {
+            operations_counter++;
+            WriteFileEx(fileHandle, buffer[i], blockSize, &overlappeds[i], FileIOCompletionRoutine);
+            fileSize -= blockSize;
+        }
+    }
+    while (callback < operations_counter)
+        SleepEx(-1, true);
+    for (int i=0; i<operationsCount; i++)
+    {
+        overlappeds[i].Offset += blockSize*operationsCount;
+    }
+    callback = 0;
+}
+
+void copyFile(HANDLE firstHandle, HANDLE secondHandle, DWORD blockSize, int operationsCount) {
+    DWORD high = 0;
+    long long fileSize = GetFileSize(firstHandle, &high);
+    long long curSize = fileSize;
+    CHAR** buffer = new CHAR*[operationsCount];
+    // должны оставаться допустимыми для длительной операции чтения.
+    OVERLAPPED* over_1 = new OVERLAPPED[operationsCount];
+    OVERLAPPED* over_2 = new OVERLAPPED[operationsCount];
+
+    for (int i=0; i < operationsCount; i++)
+    {
+        buffer[i] = new CHAR[(int)blockSize];
+
+        over_1[i].Offset = over_2[i].Offset = i*(int)blockSize;
+        over_1[i].OffsetHigh = over_2[i].OffsetHigh = i*(int)high;
+        over_1[i].hEvent = over_2[i].hEvent = NULL;
+    }
+
     do
     {
-        callback = 0;
-        operation_counter = 0;
+        ReadFileOverlapped(fileSize, blockSize, operationsCount, over_1, buffer, firstHandle);
+        WriteFileOverlapped(fileSize, blockSize, operationsCount, over_2, buffer, secondHandle);
+        curSize -= (long long)(blockSize*operationsCount);
+    } while (curSize > 0);
 
-        // ReadFileEx()
-        for (int i = 0; i < operationsCount; i++)
-        {
-            if (fileSize > 0)
-            {
-                operation_counter++;
-                if (i || inFlag)
-                {
-                    for (int j = 0; j < operationsCount; j++)
-                        over_1[j].Offset += blockSize;
-                    buffer += blockSize;
-                }
-                inFlag = true;
-                // firstHandle - дескриптор файла или устройства ввода-вывода с FILE_FLAG_OVERLAPPED
-                ReadFileEx(firstHandle, buffer, blockSize, &over_1[i], FileIOCompletionRoutine);
-                fileSize -= blockSize;
-            }
-        }
-        // поток, запустивший операции чтения/записи должен
-        // приостановить себя, например, с помощью функций Sleep () и SleepEx(),
-        // и предоставить возможность выполнения функции завершения.
-        while (callback < operation_counter)
-            SleepEx(-1, TRUE);
-        // Функция приостанавливает выполнения потока до наступления события ввода/вывода или на время.
-        // -1 - запрещаем планировать поток
-
-        callback = 0;
-
-        // WriteFileEx()
-        for (int i = 0; i < operation_counter; i++)
-        {
-            if (i || outFlag)
-            {
-                for (int j = 0; j < operationsCount; j++)
-                    over_2[j].Offset += blockSize;
-                buffer2 += blockSize;
-            }
-            outFlag = true;
-            WriteFileEx(secondHandle, buffer2, blockSize, &over_2[i], FileIOCompletionRoutine);
-        }
-        while (callback < operation_counter)
-            SleepEx(-1, TRUE);
-    } while (fileSize > 0);
-    SetFilePointer(secondHandle, firstSize, NULL, FILE_BEGIN);
+    SetFilePointer(secondHandle, fileSize, NULL, FILE_BEGIN);
     SetEndOfFile(secondHandle);
 }
