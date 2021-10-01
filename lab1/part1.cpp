@@ -482,6 +482,8 @@ void get_file_time() {
     else {
         cout << "Ошибка! Не удалось получить информацию о файле. Код ошибки: " << GetLastError() << endl;
     }
+
+    CloseHandle(fileHandle);
 }
 
 void set_file_time() {
@@ -507,4 +509,6 @@ void set_file_time() {
     else {
         cout << "Ошибка! Код ошибки: " << GetLastError() << endl;
     }
+
+    CloseHandle(fileHandle);
 }
