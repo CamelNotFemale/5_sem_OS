@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <windows.h>
 #include <string>
 #include <conio.h>
@@ -16,7 +16,7 @@ int main()
     LPVOID lpFileMap = NULL;
     string fileInput;
 
-    cout << "Ââåäèòå èìÿ îòîáðàæåíèÿ:" << endl;
+    cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¸Ð¼Ñ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ:" << endl;
     cout << "> ";
     wcin >> nameFile;
 
@@ -28,23 +28,23 @@ int main()
     {
         lpFileMap = MapViewOfFile(FileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
         if (lpFileMap == 0) {
-            cout << "Â ïðîåêöèè íè÷åãî íåò, ñíà÷àëà çàïóñòèòå ïðèëîæåíèå writer\n";
+            cout << "Ð’ Ð¿Ñ€Ð¾ÐµÐºÑ†Ð¸Ð¸ Ð½Ð¸Ñ‡ÐµÐ³Ð¾ Ð½ÐµÑ‚, ÑÐ½Ð°Ñ‡Ð°Ð»Ð° Ð·Ð°Ð¿ÑƒÑÑ‚Ð¸Ñ‚Ðµ Ð¿Ñ€Ð¸Ð»Ð¾Ð¶ÐµÐ½Ð¸Ðµ writer\n";
             system("pause");
             return 1;
         }
 
-        cout << "Ïî àäðåñó " << lpFileMap << " ïîëó÷åíû ñëåäóþùèå äàííûå:" << endl;
+        cout << "ÐŸÐ¾ Ð°Ð´Ñ€ÐµÑÑƒ " << lpFileMap << " Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ñ‹ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ:" << endl;
         cout << "> ";
 
         cout << (char*)lpFileMap << endl << endl;
 
-        cout << "Ðàáîòà îáåèõ ïðîãðàìì çàâåðøåíà.";
+        cout << "Ð Ð°Ð±Ð¾Ñ‚Ð° Ð¾Ð±ÐµÐ¸Ñ… Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð°.";
 
         _getch();
 
     }
     else {
-        cout << "Îøèáêà ñîçäàíèÿ ïðîåêöèè.\n";
+        cout << "ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐ¾Ð·Ð´Ð°Ð½Ð¸Ñ Ð¿Ñ€Ð¾ÐµÐºÑ†Ð¸Ð¸.\n";
     }
 
     UnmapViewOfFile(lpFileMap);

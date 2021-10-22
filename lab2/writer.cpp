@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <windows.h>
 #include <string>
 #include <conio.h>
@@ -19,7 +19,7 @@ int main()
     LPVOID lpFileMap = NULL;
     string fileInput;
 
-    cout << "Ââåäèòå èìÿ ôàéëà:" << endl;
+    cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¸Ð¼Ñ Ñ„Ð°Ð¹Ð»Ð°:" << endl;
     cout << "> ";
     wcin >> nameFile;
 
@@ -29,7 +29,7 @@ int main()
 
     if (File != INVALID_HANDLE_VALUE) {
 
-        cout << "Ââåäèòå èìÿ îòîáðàæåíèÿ:" << endl;
+        cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¸Ð¼Ñ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ:" << endl;
         cout << "> ";
         wcin >> mapFile;
 
@@ -40,23 +40,23 @@ int main()
 
         if (lpFileMap != NULL)
         {
-            cout << "Ôàéë óñïåøíî ñïðîåöèðîâàí." << endl;
-            cout << "Àäðåñ ïðîåêöèè: " << lpFileMap << endl << endl;
+            cout << "Ð¤Ð°Ð¹Ð» ÑƒÑÐ¿ÐµÑˆÐ½Ð¾ ÑÐ¿Ñ€Ð¾ÐµÑ†Ð¸Ñ€Ð¾Ð²Ð°Ð½." << endl;
+            cout << "ÐÐ´Ñ€ÐµÑ Ð¿Ñ€Ð¾ÐµÐºÑ†Ð¸Ð¸: " << lpFileMap << endl << endl;
         }
 
-        cout << "Ââåäèòå äàííûå äëÿ çàïèñè:" << endl;
+        cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð´Ð»Ñ Ð·Ð°Ð¿Ð¸ÑÐ¸:" << endl;
         cout << "> ";
         cin >> fileInput;
 
         CopyMemory((LPVOID)lpFileMap, (CHAR*)fileInput.c_str(), fileInput.length() * sizeof(char));
 
-        cout << endl << "Äàííûå çàïèñàíû. Íå çàêðûâàéòå ïðîãðàììó-ïèñàòåëü: äëÿ äàëüíåéøåé ðàáîòû çàïóñòèòå ïðîãðàììó-÷èòàòåëü.";
+        cout << endl << "Ð”Ð°Ð½Ð½Ñ‹Ðµ Ð·Ð°Ð¿Ð¸ÑÐ°Ð½Ñ‹. ÐÐµ Ð·Ð°ÐºÑ€Ñ‹Ð²Ð°Ð¹Ñ‚Ðµ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ñƒ-Ð¿Ð¸ÑÐ°Ñ‚ÐµÐ»ÑŒ: Ð´Ð»Ñ Ð´Ð°Ð»ÑŒÐ½ÐµÐ¹ÑˆÐµÐ¹ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ð·Ð°Ð¿ÑƒÑÑ‚Ð¸Ñ‚Ðµ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ñƒ-Ñ‡Ð¸Ñ‚Ð°Ñ‚ÐµÐ»ÑŒ.";
 
         _getch();
 
     }
     else {
-        cout << "Îøèáêà ñîçäàíèÿ ôàéëà. Êîä îøèáêè: " << GetLastError() << endl;
+        cout << "ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐ¾Ð·Ð´Ð°Ð½Ð¸Ñ Ñ„Ð°Ð¹Ð»Ð°. ÐšÐ¾Ð´ Ð¾ÑˆÐ¸Ð±ÐºÐ¸: " << GetLastError() << endl;
     }
 
     if (lpFileMap != NULL && File != NULL) {
