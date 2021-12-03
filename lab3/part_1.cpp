@@ -4,10 +4,9 @@
 
 using namespace std;
 
-DWORD block_size = 930814;
-DWORD N = 100000000;
+const size_t block_size = 9308140;
+const size_t N = 100000000;
 long double pi = 0.0;
-int count_thr;
 int current_pos = 0;
 
 LPCRITICAL_SECTION section = new CRITICAL_SECTION;
@@ -39,6 +38,7 @@ int main()
     setlocale(LC_ALL, "rus");
 
     DWORD start, end;
+    int count_thr;
 
     cout << "Введите количество потоков - ";
     cin >> count_thr;
