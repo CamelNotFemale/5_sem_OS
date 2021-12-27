@@ -13,6 +13,7 @@ int main()
     HANDLE mutex;
     int page;
     std::string mutexName = "mutex_*";
+    std::vector<HANDLE> pageMutex;
     DWORD waitResult;
 
     std::srand(std::time(nullptr));
@@ -40,13 +41,21 @@ int main()
             WriteFile(logOut, outputString.data(), outputString.length(), &written, NULL);
             
             // ищем конкретную занятую страницу
-            do {
+            /*do {
                 page += 1;
                 mutexName.back() = '0' + page;
                 mutex = OpenMutexA(SYNCHRONIZE, false, mutexName.c_str());
                 waitResult = WaitForSingleObject(mutex, 0);
-            } while (waitResult == WAIT_TIMEOUT);
-    
+            } while (waitResult == WAIT_TIMEOUT);*/
+            // получаем список мьютексов страниц буфферной памяти
+            for (page = 0; page < 16; page++)
+            {
+                mutexName.back() = '0' + page;
+                mutex = OpenMutexA(SYNCHRONIZE, false, mutexName.c_str());
+                pageMutex.push_back(mutex);
+            }
+            waitResult = WaitForMultipleObjects(pageMutex.size(), &pageMutex[0], false, INFINITE);
+
             outputString = "TAKE MUTEX: " + std::to_string(GetTickCount()) + "\n";
             WriteFile(logOut, outputString.data(), outputString.length(), &written, NULL);            
 
@@ -54,7 +63,7 @@ int main()
 
             // Освобождаем мьютекс
 
-            if (ReleaseMutex(mutex))
+            if (ReleaseMutex(pageMutex[waitResult]))
             {
                 outputString = "FREE MUTEX: " + std::to_string(GetTickCount()) + "\n";
                 WriteFile(logOut, outputString.data(), outputString.length(), &written, NULL);
